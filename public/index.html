@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TS Store — Mobile Accessories</title>
+<style>
+  :root{--gold:#D4AF37;--black:#0F0F10;--charcoal:#1A1A1C;--card:#1E1E20;--line:rgba(255,255,255,0.08);--gray:#9A9A9A;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Segoe UI',Helvetica,Arial,sans-serif;background:var(--black);color:#fff;}
+  a{text-decoration:none;color:inherit;}
+  .wrap{max-width:1320px;margin:0 auto;padding:0 32px;}
+  .nav{position:sticky;top:0;z-index:100;background:var(--black);border-bottom:1px solid var(--line);}
+  .nav-inner{max-width:1320px;margin:0 auto;padding:18px 32px;display:flex;align-items:center;gap:24px;}
+  .logo-mark{width:40px;height:40px;border-radius:10px;background:var(--gold);display:flex;align-items:center;justify-content:center;color:#0F0F10;font-weight:800;}
+  .logo-text{font-weight:800;font-size:19px;}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:16px;}
+  .nav-cart{position:relative;width:38px;height:38px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .cart-badge{position:absolute;top:-6px;right:-6px;background:var(--gold);color:#0F0F10;font-size:10.5px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;}
+  .hero{padding:50px 32px;text-align:center;border-bottom:1px solid var(--line);}
+  .hero h1{font-size:36px;font-weight:800;}
+  .hero h1 span{color:var(--gold);}
+  .hero p{color:var(--gray);margin-top:10px;}
+  .section{padding:40px 0;border-top:1px solid var(--line);}
+  .section-head{text-align:center;margin-bottom:26px;}
+  .section-head h2{font-size:26px;font-weight:800;}
+  .cat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;}
+  .cat-tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 10px;text-align:center;cursor:pointer;font-weight:700;font-size:13px;}
+  .cat-tile.active{border-color:var(--gold);color:var(--gold);}
+  .prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  .prod-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .prod-img{aspect-ratio:1/0.85;background:#141415;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+  .prod-img img{width:100%;height:100%;object-fit:cover;}
+  .prod-badge{position:absolute;top:8px;left:8px;background:var(--gold);color:#0F0F10;font-size:10px;font-weight:800;padding:3px 8px;border-radius:100px;}
+  .prod-body{padding:12px 14px 14px;}
+  .prod-brand{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;}
+  .prod-name{font-size:14px;font-weight:700;margin-top:3px;}
+  .prod-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+  .prod-price{font-weight:800;}
+  .prod-price span{font-size:11px;color:var(--gray);text-decoration:line-through;margin-left:6px;}
+  .add-cart-btn{background:var(--gold);color:#0F0F10;font-size:11px;font-weight:800;padding:6px 10px;border-radius:8px;cursor:pointer;}
+  .add-cart-btn.added{background:#4CAF50;color:#fff;}
+  .empty-msg{grid-column:1/-1;color:var(--gray);text-align:center;padding:30px;}
+
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;display:none;}
+  .overlay.open{display:block;}
+  .panel{position:fixed;top:0;right:-380px;width:360px;height:100%;background:var(--charcoal);border-left:1px solid var(--line);z-index:200;transition:right .3s;display:flex;flex-direction:column;padding:20px;}
+  .panel.open{right:0;}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line);}
+  .panel-close{cursor:pointer;color:var(--gray);}
+  .cart-items{flex:1;overflow-y:auto;margin-top:12px;display:flex;flex-direction:column;gap:10px;}
+  .cart-item{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center;}
+  .qty-btn{width:22px;height:22px;border-radius:6px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .cart-foot{border-top:1px solid var(--line);padding-top:12px;margin-top:8px;}
+  .total-row{display:flex;justify-content:space-between;font-size:16px;margin-bottom:12px;}
+  .btn-gold{background:var(--gold);color:#0F0F10;font-weight:800;padding:12px;border-radius:10px;text-align:center;cursor:pointer;width:100%;border:none;font-size:14px;}
+  .btn-gold:disabled{opacity:.5;cursor:not-allowed;}
+
+  .checkout-form{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+  .checkout-form input, .checkout-form select{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px;color:#fff;font-size:13px;}
+  .pay-options{display:flex;gap:10px;}
+  .pay-option{flex:1;border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .pay-option.active{border-color:var(--gold);color:var(--gold);background:rgba(212,175,55,.08);}
+  .form-msg{font-size:12.5px;color:var(--gray);margin-top:6px;}
+  .form-msg.error{color:#ff6b6b;}
+  footer{background:var(--charcoal);color:#999;padding:30px;text-align:center;font-size:13px;border-top:1px solid var(--line);}
+  @media(max-width:900px){.prod-grid{grid-template-columns:repeat(2,1fr);}.cat-grid{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-inner">
+    <div class="logo-mark">TS</div>
+    <div class="logo-text">TS Store</div>
+    <div class="nav-right">
+      <div class="nav-cart" id="cartIcon">🛒<span class="cart-badge" id="cartBadge">0</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>Premium Phone <span>Accessories</span></h1>
+  <p>Chargers, cases, earbuds and more — powered by a real backend & database.</p>
+</div>
+
+<div class="section">
+  <div class="wrap">
+    <div class="section-head"><h2>Shop by Category</h2></div>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="wrap">
+    <div class="section-head" id="sectionTitle"><h2>All Products</h2></div>
+    <div class="prod-grid" id="productGrid"></div>
+  </div>
+</div>
+
+<footer>© 2026 <b>TS Store</b>. Real orders are saved to the database.</footer>
+
+<!-- CART PANEL -->
+<div class="panel" id="cartPanel">
+  <div class="panel-head"><b>Your Cart</b><span class="panel-close" id="cartClose">✕</span></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-foot">
+    <div class="total-row"><span>Total</span><b id="cartTotal">Rs. 0</b></div>
+    <button class="btn-gold" id="checkoutBtn">Checkout</button>
+  </div>
+</div>
+
+<!-- CHECKOUT PANEL -->
+<div class="panel" id="checkoutPanel">
+  <div class="panel-head"><b>Checkout</b><span class="panel-close" id="checkoutClose">✕</span></div>
+  <div class="checkout-form">
+    <input id="custName" placeholder="Full name">
+    <input id="custPhone" placeholder="Phone number">
+    <input id="custCity" placeholder="City">
+    <input id="custAddress" placeholder="Full delivery address">
+    <div class="pay-options">
+      <div class="pay-option active" data-method="cod">Cash on Delivery</div>
+      <div class="pay-option" data-method="online">Pay Online</div>
+    </div>
+    <button class="btn-gold" id="placeOrderBtn">Place Order</button>
+    <div class="form-msg" id="checkoutMsg"></div>
+  </div>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<script>
+// Set this to your backend URL once deployed (e.g. Render URL). Leave blank
+// ("") if the frontend is served BY the backend itself (same domain).
+const API_BASE = '';
+
+let allProducts = [];
+let activeCategory = null;
+let cart = JSON.parse(localStorage.getItem('ts_cart') || '[]');
+let paymentMethod = 'cod';
+
+const categories = [
+  ['Chargers', 'charger'], ['Cables', 'cable'], ['Power Banks', 'powerbank'],
+  ['Phone Cases', 'case'], ['Earbuds', 'earbuds'], ['Ring Lights', 'battery'],
+];
+document.getElementById('catGrid').innerHTML = categories.map(([label, key]) => `
+  <div class="cat-tile" data-cat="${key}">${label}</div>
+`).join('');
+
+async function loadProducts(category = null) {
+  const url = category ? `${API_BASE}/api/products?category=${category}` : `${API_BASE}/api/products`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    allProducts = data;
+    renderProducts(data);
+  } catch (err) {
+    document.getElementById('productGrid').innerHTML =
+      `<p class="empty-msg">Could not reach the server. Make sure the backend is running and API_BASE is set correctly.</p>`;
+  }
+}
+
+function renderProducts(products) {
+  const grid = document.getElementById('productGrid');
+  if (!products.length) {
+    grid.innerHTML = `<p class="empty-msg">No products found in this category yet.</p>`;
+    return;
+  }
+  grid.innerHTML = products.map(p => `
+    <div class="prod-card">
+      <div class="prod-img">
+        ${p.badge ? `<span class="prod-badge">${p.badge}</span>` : ''}
+        ${p.image ? `<img src="${p.image}" alt="${p.name}">` : ''}
+      </div>
+      <div class="prod-body">
+        <div class="prod-brand">${p.brand}</div>
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-foot">
+          <div class="prod-price">Rs. ${p.price.toLocaleString()}${p.oldPrice ? `<span>Rs. ${p.oldPrice.toLocaleString()}</span>` : ''}</div>
+          <div class="add-cart-btn" data-id="${p._id}">ADD</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('catGrid').addEventListener('click', (e) => {
+  const tile = e.target.closest('.cat-tile');
+  if (!tile) return;
+  const cat = tile.dataset.cat;
+  if (activeCategory === cat) {
+    activeCategory = null;
+    document.querySelectorAll('.cat-tile').forEach(t => t.classList.remove('active'));
+    document.getElementById('sectionTitle').innerHTML = '<h2>All Products</h2>';
+    loadProducts();
+  } else {
+    activeCategory = cat;
+    document.querySelectorAll('.cat-tile').forEach(t => t.classList.toggle('active', t === tile));
+    document.getElementById('sectionTitle').innerHTML = `<h2>${tile.textContent}</h2>`;
+    loadProducts(cat);
+  }
+});
+
+// ---- Cart ----
+function saveCart() { localStorage.setItem('ts_cart', JSON.stringify(cart)); }
+
+function updateCartUI() {
+  document.getElementById('cartBadge').textContent = cart.reduce((n, i) => n + i.qty, 0);
+  const el = document.getElementById('cartItems');
+  el.innerHTML = cart.length
+    ? cart.map((i, idx) => `
+      <div class="cart-item">
+        <div><b style="font-size:12.5px">${i.brand} ${i.name}</b><div style="font-size:11px;color:var(--gray)">Rs. ${i.price} × ${i.qty}</div></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="qty-btn" data-i="${idx}" data-a="dec">−</div>${i.qty}<div class="qty-btn" data-i="${idx}" data-a="inc">+</div>
+        </div>
+      </div>`).join('')
+    : `<p style="color:var(--gray);text-align:center;margin-top:30px;">Cart is empty.</p>`;
+  document.getElementById('cartTotal').textContent = `Rs. ${cart.reduce((s, i) => s + i.price * i.qty, 0).toLocaleString()}`;
+  saveCart();
+}
+updateCartUI();
+
+document.body.addEventListener('click', (e) => {
+  const btn = e.target.closest('.add-cart-btn');
+  if (!btn) return;
+  const product = allProducts.find(p => p._id === btn.dataset.id);
+  if (!product) return;
+  const existing = cart.find(i => i.id === product._id);
+  if (existing) existing.qty++;
+  else cart.push({ id: product._id, name: product.name, brand: product.brand, price: product.price, qty: 1 });
+  updateCartUI();
+  btn.textContent = 'Added ✓'; btn.classList.add('added');
+  setTimeout(() => { btn.textContent = 'ADD'; btn.classList.remove('added'); }, 800);
+});
+
+document.getElementById('cartItems').addEventListener('click', (e) => {
+  const q = e.target.closest('.qty-btn');
+  if (!q) return;
+  const idx = Number(q.dataset.i);
+  if (q.dataset.a === 'inc') cart[idx].qty++;
+  else { cart[idx].qty--; if (cart[idx].qty <= 0) cart.splice(idx, 1); }
+  updateCartUI();
+});
+
+function openPanel(id) { document.getElementById(id).classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+function closeAllPanels() {
+  document.getElementById('cartPanel').classList.remove('open');
+  document.getElementById('checkoutPanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+document.getElementById('cartIcon').addEventListener('click', () => openPanel('cartPanel'));
+document.getElementById('cartClose').addEventListener('click', closeAllPanels);
+document.getElementById('checkoutClose').addEventListener('click', closeAllPanels);
+document.getElementById('overlay').addEventListener('click', closeAllPanels);
+
+document.getElementById('checkoutBtn').addEventListener('click', () => {
+  if (!cart.length) return;
+  document.getElementById('cartPanel').classList.remove('open');
+  openPanel('checkoutPanel');
+});
+
+document.querySelectorAll('.pay-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    paymentMethod = opt.dataset.method;
+  });
+});
+
+document.getElementById('placeOrderBtn').addEventListener('click', async () => {
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const city = document.getElementById('custCity').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+  const msg = document.getElementById('checkoutMsg');
+
+  if (!name || !phone || !city || !address) {
+    msg.textContent = 'Please fill in all fields.';
+    msg.className = 'form-msg error';
+    return;
+  }
+
+  const btn = document.getElementById('placeOrderBtn');
+  btn.disabled = true; btn.textContent = 'Placing order...';
+
+  try {
+    const res = await fetch(`${API_BASE}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: cart,
+        total: cart.reduce((s, i) => s + i.price * i.qty, 0),
+        customer: { name, phone, city, address },
+        paymentMethod,
+      }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      msg.textContent = data.message || 'Something went wrong.';
+      msg.className = 'form-msg error';
+      btn.disabled = false; btn.textContent = 'Place Order';
+      return;
+    }
+
+    if (paymentMethod === 'online' && data.checkoutUrl) {
+      window.location.href = data.checkoutUrl; // send to Stripe payment page
+      return;
+    }
+
+    // COD order placed successfully
+    cart = [];
+    updateCartUI();
+    closeAllPanels();
+    alert('✅ Order placed! We will contact you shortly to confirm delivery.');
+  } catch (err) {
+    msg.textContent = 'Could not reach the server.';
+    msg.className = 'form-msg error';
+  }
+  btn.disabled = false; btn.textContent = 'Place Order';
+});
+
+loadProducts();
+</script>
+</body>
+</html>

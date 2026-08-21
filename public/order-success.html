@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Order Confirmed — TS Store</title>
+<style>
+  body{font-family:'Segoe UI',Helvetica,Arial,sans-serif;background:#0F0F10;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;}
+  .box{max-width:420px;padding:30px;}
+  h1{color:#D4AF37;font-size:26px;margin-bottom:10px;}
+  p{color:#9A9A9A;font-size:14px;line-height:1.6;}
+  a{display:inline-block;margin-top:20px;background:#D4AF37;color:#0F0F10;font-weight:800;padding:12px 24px;border-radius:8px;text-decoration:none;}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>✅ Payment Successful!</h1>
+    <p id="msg">Your order has been placed. We'll contact you shortly to confirm delivery details.</p>
+    <a href="index.html">← Back to store</a>
+  </div>
+  <script>
+    // Clear the saved cart now that payment is complete
+    localStorage.removeItem('ts_cart');
+    const params = new URLSearchParams(location.search);
+    const orderId = params.get('orderId');
+    if (orderId) {
+      document.getElementById('msg').textContent += ` (Order ID: ${orderId})`;
+    }
+  </script>
+</body>
+</html>
