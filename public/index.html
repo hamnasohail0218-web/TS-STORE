@@ -196,22 +196,21 @@
 
   <!-- NAVBAR -->
 
-
 <div class="nav">
   <div class="nav-inner">
     <div class="logo-mark">TS</div>
     <div class="logo-text">TS Store</div>
     <div class="nav-right">
-      <a href="#about-us" style="color: #ffffff; text-decoration: none; margin-right: 15px; font-size: 14px; font-weight: 500; transition: 0.2s;" onmouseover="this.style.color='#ffc107'" onmouseout="this.style.color='#ffffff'">About Us</a>
+      <button onclick="toggleAbout()" style="background: none; border: 1px solid #ffc107; color: #ffc107; padding: 5px 12px; border-radius: 6px; cursor: pointer; margin-right: 15px; font-size: 13px;">About Us</button>
       <div class="nav-cart" id="cartIcon">🛒<span class="cart-badge" id="cartBadge">0</span></div>
     </div>
   </div>
 </div>
 
 <!-- ABOUT US SECTION (Above Hero Section) -->
-<div id="about-us" class="section" style="background: #111622; padding: 30px 20px; border-bottom: 2px solid #1f293d; margin-bottom: 20px;">
+<div id="about-us" class="section" style="display: none; background: #111622; padding: 30px 20px; border-bottom: 2px solid #ffc107; position: relative;"></div>
   <div class="wrap" style="max-width: 900px; margin: 0 auto; color: #ffffff;">
-    
+    <button onclick="toggleAbout()" style="position: absolute; top: 15px; right: 20px; background: #ffc107; color: #000; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">✕ Close</button>
     <div style="text-align: center; margin-bottom: 25px;">
       <h2 style="font-size: 30px; color: #ffc107; margin-bottom: 6px;">About TS Store</h2>
       <p style="color: #94a3b8; font-size: 14px;">Quality Accessories, Delivered with Trust</p>
@@ -587,6 +586,16 @@ document.getElementById('placeOrderBtn').addEventListener('click', async () => {
 });
 
 loadProducts();
+
+function toggleAbout() {
+  var aboutSec = document.getElementById("about-us");
+  if (aboutSec.style.display === "none" || aboutSec.style.display === "") {
+    aboutSec.style.display = "block";
+    aboutSec.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    aboutSec.style.display = "none";
+  }
+}
 </script>
 </body>
 </html>
