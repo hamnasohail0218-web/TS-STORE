@@ -206,10 +206,6 @@
     </div>
   </div>
 </div>
-
-
-    
-    
    
 <!-- HERO SECTION STARTS HERE -->
 
@@ -240,7 +236,7 @@
 <div class="section">
   <div class="wrap">
     <div class="section-head"><h2>Shop by Category</h2></div>
-    <div class="category-icon-bar">
+    <div class="category-icon-bar" id="catGrid"></div>
       <a href="category.html?cat=battery" target="_blank" class="cat-item">
         <div class="cat-icon-box"><img src="/images/battery.png" alt="Battery"></div>
         <span>Batteries</span>
@@ -323,6 +319,8 @@
 <div class="overlay" id="overlay"></div>
 
 <script>
+
+
 // Set this to your backend URL once deployed (e.g. Render URL). Leave blank
 // ("") if the frontend is served BY the backend itself (same domain).
 const API_BASE = '';
@@ -393,6 +391,26 @@ document.getElementById('catGrid').addEventListener('click', (e) => {
     loadProducts(cat);
   }
 });
+   
+document.getElementById('productGrid').addEventListener('click', (e) => {
+  const btn = e.target.closest('.add-cart-btn');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const product = allProducts.find(p => p._id === id);
+  if (!product) return;
+
+  const existing = cart.find(item => item._id === id);
+  if (existing) {
+    existing.qty = (existing.qty || 1) + 1;
+  } else {
+    cart.push({ ...product, qty: 1 });
+  }
+
+  localStorage.setItem('ts_cart', JSON.stringify(cart));
+  updateCartUI();
+  alert('Product added to cart!');
+});
+
 
 // ---- Cart ----
 function saveCart() { localStorage.setItem('ts_cart', JSON.stringify(cart)); }
@@ -417,11 +435,16 @@ updateCartUI();
 document.body.addEventListener('click', (e) => {
   const btn = e.target.closest('.add-cart-btn');
   if (!btn) return;
-  const product = allProducts.find(p => p._id === btn.dataset.id);
+  const productId = btn.dataset.id;
+  const product = allProducts.find(p => (p._id || p.id) == productId);
   if (!product) return;
-  const existing = cart.find(i => i.id === product._id);
-  if (existing) existing.qty++;
-  else cart.push({ id: product._id, name: product.name, brand: product.brand, price: product.price, qty: 1 });
+
+  const existing = cart.find(i => (i._id || i.id) == (product._id || product.id));
+  if (existing) {
+    existing.qty = (existing.qty || 1) + 1;
+  } else {
+    cart.push({ ...product, qty: 1 });
+  }
   updateCartUI();
   btn.textContent = 'Added ✓'; btn.classList.add('added');
   setTimeout(() => { btn.textContent = 'ADD'; btn.classList.remove('added'); }, 800);
